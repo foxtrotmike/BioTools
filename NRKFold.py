@@ -2,31 +2,41 @@ import random
 import numpy as np
 def NRKFold(E,pc,K = 5, shuffle=True):
     """
-    Generate non-redundant K-folds so that no two folds contain proteins
-    belonging to the same cluster and the number of examples are (approx)
-    equal in all folds. Implements the greedy number partitioning method
-    https://en.wikipedia.org/wiki/Greedy_number_partitioning
-    >>> NRKFold(['p1','p2','p3','p4','p5','p6','p1'],{'p1':1,'p2':2,'p3':1,'p4':2,'p5':3,'p6':3},K=2, shuffle = False)
-    Here we have 7 examples involving 6 proteins p1-p6 such that proteins
-    p1,p3,p5 form one cluster whereas p2,p4,p6 form another cluster
-    This results in division into two folds as [[0, 2, 6], [1, 3, 4, 5]]
-    Note that examples 0,2,6 comprising fold-1 with proteins p1 and p2 are 
-    from the first cluster whereas the remaining examples are from other clusters
+    Generate non-redundant K-folds for a dataset where each example involves an object 
+    that belongs to a certain cluster. This function ensures that no two folds contain 
+    objects from the same cluster and aims to distribute the number of examples 
+    approximately equally across all folds.
+
+    This is particularly useful in scenarios where data points can naturally group into 
+    clusters (e.g., proteins in bioinformatics), and it is important to avoid having 
+    similar examples in both the training and validation sets of a particular fold.
+
     Parameters
     ----------
-    E : TYPE List (length equal to number of examples)
-        DESCRIPTION. Protein id of protein involved in each example
-    pc : TYPE dictionary 
-        DESCRIPTION. Cluster assignment of each protein
-    K : TYPE, optional Integer
-        DESCRIPTION. Number of folds The default is 5.
-    shuffle: TYPE, Boolean
-        cluster to fold assignments are different across different runs
+    E : List
+        A list containing identifiers of objects involved in each example.
+    pc : Dictionary
+        A dictionary mapping each object to its cluster assignment.
+    K : Integer, optional
+        The number of folds to create. Default is 5.
+    shuffle : Boolean, optional
+        Determines whether to shuffle the cluster to fold assignments in different runs.
+        Default is True.
+
     Returns
     -------
-    F : TYPE list of lists
-        DESCRIPTION. Indices of examples in E in each fold
+    List of lists
+        A list where each sublist contains the indices of examples in `objects` that belong to a particular fold.
 
+    Example
+    -------
+    >>> objects = ['obj1', 'obj2', 'obj3', 'obj4', 'obj5', 'obj6', 'obj1']
+    >>> clusters = {'obj1': 1, 'obj2': 2, 'obj3': 1, 'obj4': 2, 'obj5': 3, 'obj6': 3}
+    >>> folds = NRKFold(objects, clusters, K=2, shuffle=False)
+    >>> print(folds)
+    Output might be: [[0, 2, 6], [1, 3, 4, 5]]
+    Here, objects 'obj1', 'obj3', and 'obj1' (indices 0, 2, 6) are in one fold, 
+    and the rest are in another fold, ensuring no fold has objects from the same cluster.
     """
     e = [pc[str(x)] for x in E] #cluster indices of all proteins in the examples
     c2idx={} #indices of examples of each cluster in e
